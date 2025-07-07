@@ -1,21 +1,27 @@
 import socket
 import time
 
-def send_udp_packets(ip, port, num_packets, duration=60):
+def send_udp_packets(ip, port, pps, duration=60):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     message = b'Test packet'
-    start_time = time.time()
+    total_packets = pps * duration
     sent_packets = 0
+    start_time = time.time()
 
-    while sent_packets < num_packets and (time.time() - start_time) < duration:
-        try:
-            sock.sendto(message, (ip, port))
-            sent_packets += 1
-            if sent_packets % 10000 == 0:
-                print(f"{sent_packets} packets sent")
-        except Exception as e:
-            print(f"Error sending packet {sent_packets}: {e}")
-            break
+    while (time.time() - start_time) < duration:
+        second_start = time.time()
+        packets_this_second = 0
+        while packets_this_second < pps and (time.time() - start_time) < duration:
+            try:
+                sock.sendto(message, (ip, port))
+                sent_packets += 1
+                packets_this_second += 1
+            except Exception as e:
+                print(f"Error sending packet {sent_packets}: {e}")
+                break
+        elapsed = time.time() - second_start
+        if elapsed < 1:
+            time.sleep(1 - elapsed)
 
     sock.close()
     elapsed = time.time() - start_time
@@ -24,10 +30,10 @@ def send_udp_packets(ip, port, num_packets, duration=60):
 if __name__ == "__main__":
     ip = input("Introduce la IP de destino: ")
     port = int(input("Introduce el puerto de destino: "))
-    num_packets = int(input("Introduce el número de paquetes a enviar: "))
+    pps = int(input("Introduce la cantidad de paquetes por segundo (pps): "))
     try:
         duration = int(input("Introduce el tiempo máximo en segundos (por defecto 60): ") or "60")
     except ValueError:
         duration = 60
 
-    send_udp_packets(ip, port, num_packets, duration)
+    send_udp_packets(ip, port, pps, duration)
