@@ -1,12 +1,12 @@
 import socket
 
 def bypass(ip, port, time):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.settimeout(time)
-    result = sock.connect_ex((ip, port))
-    if result == 0:
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(time)
+        sock.connect((ip, port))
         print("Bypass successful")
-    else:
+    except:
         print("Bypass failed")
     sock.close()
 
